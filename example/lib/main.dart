@@ -38,7 +38,6 @@ class _MyHomePageState extends State<MyHomePage> {
   _showSolevatoDialog() {
     SolevatoChatDialog.show(
       context,
-      baseUrl: "https://app.solevatoClientAuthServiceProvider.com",
       inboxIdentifier: "xxxxxxxxxxxxxxxxxxx",
       title: "Solevato Support",
       user: SolevatoUser(
