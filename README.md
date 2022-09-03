@@ -1,10 +1,11 @@
-[![Pub Version](https://img.shields.io/pub/v/solevato_client_sdk_flutter?color=blueviolet)](https://pub.dev/packages/solevato_client_sdk_flutter) ![build](https://github.com/EphraimNetWorks/test_cw_flutter_client/actions/workflows/develop-actions.yml/badge.svg) [![likes](https://badges.bar/solevato_client_sdk_flutter/likes)](https://pub.dev/packages/solevato_client_sdk_flutter/score) [![popularity](https://badges.bar/solevato_client_sdk_flutter/popularity)](https://pub.dev/packages/solevato_client_sdk_flutter/score) [![pub points](https://badges.bar/solevato_client_sdk_flutter/pub%20points)](https://pub.dev/packages/solevato_client_sdk_flutter/score)
+[comment]: <> ([![Pub Version]&#40;https://img.shields.io/pub/v/solevato_client_sdk_flutter?color=blueviolet&#41;]&#40;https://pub.dev/packages/solevato_client_sdk_flutter&#41; ![build]&#40;https://github.com/EphraimNetWorks/test_cw_flutter_client/actions/workflows/develop-actions.yml/badge.svg&#41; [![likes]&#40;https://badges.bar/solevato_client_sdk_flutter/likes&#41;]&#40;https://pub.dev/packages/solevato_client_sdk_flutter/score&#41; [![popularity]&#40;https://badges.bar/solevato_client_sdk_flutter/popularity&#41;]&#40;https://pub.dev/packages/solevato_client_sdk_flutter/score&#41; [![pub points]&#40;https://badges.bar/solevato_client_sdk_flutter/pub%20points&#41;]&#40;https://pub.dev/packages/solevato_client_sdk_flutter/score&#41;)
 
 # Integrate Solevato with Flutter app
 
-Integrate Solevato flutter client into your flutter app and talk to your visitors in real time. [Solevato](https://bitbucket.com/markrady/solevato-flutter-sdk) helps you to chat with your visitors and provide exceptional support in real time. To use Solevato in your flutter app, follow the steps described below.
+Integrate Solevato flutter client into your flutter app and talk to your visitors in real time. [Solevato](https://bitbucket.org/mark_rady/solevato-flutter-sdk) helps you to chat with your visitors and provide exceptional support in real time. To use Solevato in your flutter app, follow the steps described below.
 
-<img src="https://user-images.githubusercontent.com/22669874/126673917-f8bdd47a-7a4d-4241-8b46-27ef108a0e23.png" alt="solevato screenshot" height="560"/>
+
+![Solevato Chat SDK][./example/example.png]
 
 
 ## 1. Create an Api inbox in Solevato Dashboard
@@ -18,8 +19,25 @@ Run the command below in your terminal
 or
 
 Add 
-`solevato_client_sdk_flutter:<<version>>` 
+`
+dependencies:
+    flutter:
+        sdk: flutter
+        solevato_client_sdk_flutter:
+            git:
+                url: https://mark_rady@bitbucket.org/mark_rady/solevato-flutter-sdk.git
+                ref: master
+    ..
+` 
 to your project's [pubspec.yml](https://flutter.dev/docs/development/tools/pubspec) file. You can check [here](https://pub.dev/packages/solevato_client_sdk_flutter) for the latest version.
+
+
+or
+
+Add
+`solevato_client_sdk_flutter:<<version>>`
+to your project's [pubspec.yml](https://flutter.dev/docs/development/tools/pubspec) file. You can check [here](https://pub.dev/packages/solevato_client_sdk_flutter) for the latest version.
+
 
 NB: This library uses [Hive](https://pub.dev/packages/hive) for local storage and [Flutter Chat UI](https://pub.dev/packages/flutter_chat_ui) for its user interface.
 
