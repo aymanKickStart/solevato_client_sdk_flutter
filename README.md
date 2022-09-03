@@ -5,7 +5,7 @@
 Integrate Solevato flutter client into your flutter app and talk to your visitors in real time. [Solevato](https://bitbucket.org/mark_rady/solevato-flutter-sdk) helps you to chat with your visitors and provide exceptional support in real time. To use Solevato in your flutter app, follow the steps described below.
 
 
-![Solevato Chat SDK][./example/example.png]
+![][./example/example.png]
 
 
 ## 1. Create an Api inbox in Solevato Dashboard
