@@ -17,16 +17,16 @@ Run the command below in your terminal
 or
 
 Add 
-`
+```
 dependencies:
     flutter:
         sdk: flutter
-        solevato_client_sdk_flutter:
-            git:
-                url: https://mark_rady@bitbucket.org/mark_rady/solevato-flutter-sdk.git
-                ref: master
-    ..
-` 
+    solevato_client_sdk_flutter:
+        git:
+            url: https://mark_rady@bitbucket.org/mark_rady/solevato-flutter-sdk.git
+            ref: master
+    ...
+```
 to your project's [pubspec.yml](https://flutter.dev/docs/development/tools/pubspec) file. You can check [here](https://pub.dev/packages/solevato_client_sdk_flutter) for the latest version.
 
 
