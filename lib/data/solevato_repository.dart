@@ -94,6 +94,8 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
       final contact = await clientService.getContact();
       localStorage.contactDao.saveContact(contact);
 
+      callbacks.onContactResolved?.call(contact);
+
       //refresh conversation
       final conversations = await clientService.getConversations();
       final persistedConversation =
@@ -152,7 +154,7 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
         callbacks.onConfirmedSubscription?.call();
       } else if (solevatoEvent.message?.event ==
           SolevatoEventMessageType.message_created) {
-        print("here comes message: $event");
+        debugPrint("Here comes message: $event");
         final message = solevatoEvent.message!.data!.getMessage();
         localStorage.messagesDao.saveMessage(message);
         if (message.isMine) {
@@ -163,7 +165,7 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
         }
       } else if (solevatoEvent.message?.event ==
           SolevatoEventMessageType.message_updated) {
-        print("here comes the updated message: $event");
+        debugPrint("here comes the updated message: $event");
 
         final message = solevatoEvent.message!.data!.getMessage();
         localStorage.messagesDao.saveMessage(message);
@@ -181,9 +183,11 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
           solevatoEvent.message?.data?.id ==
               (localStorage.conversationDao.getConversation()?.id ?? 0)) {
         //delete conversation result
+        callbacks.onConversationResolved?.call(
+          localStorage.conversationDao.getConversation()!,
+        );
         localStorage.conversationDao.deleteConversation();
         localStorage.messagesDao.clear();
-        callbacks.onConversationResolved?.call();
       } else if (solevatoEvent.message?.event ==
           SolevatoEventMessageType.presence_update) {
         final presenceStatuses =
@@ -198,7 +202,7 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
           callbacks.onConversationIsOffline?.call();
         }
       } else {
-        print("solevato unknown event: $event");
+        debugPrint("solevato unknown event: $event");
       }
     });
     _subscriptions.add(newSubscription);

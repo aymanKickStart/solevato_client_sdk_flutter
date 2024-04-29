@@ -25,13 +25,24 @@ class SolevatoClient {
 
   String get inboxIdentifier => _parameters.inboxIdentifier;
 
-  SolevatoClient._(this._parameters, {this.user, this.callbacks}) {
+  SolevatoClient._(
+    this._parameters, {
+    this.user,
+    this.callbacks,
+  }) {
     providerContainerMap.putIfAbsent(
-        _parameters.clientInstanceKey, () => ProviderContainer());
+      _parameters.clientInstanceKey,
+      () => ProviderContainer(),
+    );
     final container = providerContainerMap[_parameters.clientInstanceKey]!;
-    _repository = container.read(SolevatoRepositoryProvider(
+    _repository = container.read(
+      SolevatoRepositoryProvider(
         RepositoryParameters(
-            params: _parameters, callbacks: callbacks ?? SolevatoCallbacks())));
+          params: _parameters,
+          callbacks: callbacks ?? SolevatoCallbacks(),
+        ),
+      ),
+    );
   }
 
   void _init() {
@@ -84,28 +95,33 @@ class SolevatoClient {
   /// Creates an instance of [SolevatoClient] with the [baseUrl] of your solevato installation,
   /// [inboxIdentifier] for the targeted inbox. Specify custom user details using [user] and [callbacks] for
   /// handling solevato events. By default persistence is enabled, to disable persistence set [enablePersistence] as false
-  static Future<SolevatoClient> create(
-      {required String baseUrl,
-      required String inboxIdentifier,
-      SolevatoUser? user,
-      bool enablePersistence = true,
-      SolevatoCallbacks? callbacks}) async {
+  static Future<SolevatoClient> create({
+    required String baseUrl,
+    required String inboxIdentifier,
+    SolevatoUser? user,
+    bool enablePersistence = true,
+    SolevatoCallbacks? callbacks,
+  }) async {
     if (enablePersistence) {
       await LocalStorage.openDB();
     }
 
     final solevatoParams = SolevatoParameters(
-        clientInstanceKey: getClientInstanceKey(
-            baseUrl: baseUrl,
-            inboxIdentifier: inboxIdentifier,
-            userIdentifier: user?.identifier),
-        isPersistenceEnabled: enablePersistence,
-        baseUrl: baseUrl,
-        inboxIdentifier: inboxIdentifier,
-        userIdentifier: user?.identifier);
+      clientInstanceKey: getClientInstanceKey(
+          baseUrl: baseUrl,
+          inboxIdentifier: inboxIdentifier,
+          userIdentifier: user?.identifier),
+      isPersistenceEnabled: enablePersistence,
+      baseUrl: baseUrl,
+      inboxIdentifier: inboxIdentifier,
+      userIdentifier: user?.identifier,
+    );
 
-    final client =
-        SolevatoClient._(solevatoParams, callbacks: callbacks, user: user);
+    final client = SolevatoClient._(
+      solevatoParams,
+      callbacks: callbacks,
+      user: user,
+    );
 
     client._init();
 
@@ -120,10 +136,11 @@ class SolevatoClient {
   ///
   /// Create separate [SolevatoClient] instances with same baseUrl, inboxIdentifier, userIdentifier and persistence
   /// enabled will be regarded as same therefore use same contact and conversation.
-  static String getClientInstanceKey(
-      {required String baseUrl,
-      required String inboxIdentifier,
-      String? userIdentifier}) {
+  static String getClientInstanceKey({
+    required String baseUrl,
+    required String inboxIdentifier,
+    String? userIdentifier,
+  }) {
     return "$baseUrl$_keySeparator$userIdentifier$_keySeparator$inboxIdentifier";
   }
 
@@ -131,22 +148,25 @@ class SolevatoClient {
 
   ///Clears all persisted solevato data on device for a particular solevato client instance.
   ///See [getClientInstanceKey] on how solevato client instance are differentiated
-  static Future<void> clearData(
-      {required String baseUrl,
-      required String inboxIdentifier,
-      String? userIdentifier}) async {
+  static Future<void> clearData({
+    required String baseUrl,
+    required String inboxIdentifier,
+    String? userIdentifier,
+  }) async {
     final clientInstanceKey = getClientInstanceKey(
-        baseUrl: baseUrl,
-        inboxIdentifier: inboxIdentifier,
-        userIdentifier: userIdentifier);
+      baseUrl: baseUrl,
+      inboxIdentifier: inboxIdentifier,
+      userIdentifier: userIdentifier,
+    );
     providerContainerMap.putIfAbsent(
         clientInstanceKey, () => ProviderContainer());
     final container = providerContainerMap[clientInstanceKey]!;
     final params = SolevatoParameters(
-        isPersistenceEnabled: true,
-        baseUrl: "",
-        inboxIdentifier: "",
-        clientInstanceKey: "");
+      isPersistenceEnabled: true,
+      baseUrl: "https://app.solevato.com",
+      inboxIdentifier: "",
+      clientInstanceKey: "",
+    );
 
     final localStorage = container.read(localStorageProvider(params));
     await localStorage.clear();
@@ -161,10 +181,11 @@ class SolevatoClient {
     providerContainerMap.putIfAbsent("all", () => ProviderContainer());
     final container = providerContainerMap["all"]!;
     final params = SolevatoParameters(
-        isPersistenceEnabled: true,
-        baseUrl: "",
-        inboxIdentifier: "",
-        clientInstanceKey: "");
+      isPersistenceEnabled: true,
+      baseUrl: "https://app.solevato.com",
+      inboxIdentifier: "",
+      clientInstanceKey: "",
+    );
 
     final localStorage = container.read(localStorageProvider(params));
     await localStorage.clearAll();

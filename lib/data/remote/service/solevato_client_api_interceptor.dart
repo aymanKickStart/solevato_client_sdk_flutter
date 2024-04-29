@@ -52,7 +52,7 @@ class SolevatoClientApiInterceptor extends Interceptor {
           INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER, _inboxIdentifier);
       newOptions.path = newOptions.path.replaceAll(
           INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER,
-          contact.contactIdentifier!);
+          contact.contactIdentifier ?? '');
       newOptions.path = newOptions.path.replaceAll(
           INTERCEPTOR_CONVERSATION_IDENTIFIER_PLACEHOLDER,
           "${conversation.id}");

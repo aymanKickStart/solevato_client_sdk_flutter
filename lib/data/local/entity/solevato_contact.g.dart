@@ -22,13 +22,14 @@ class SolevatoContactAdapter extends TypeAdapter<SolevatoContact> {
       pubsubToken: fields[2] as String?,
       name: fields[3] as String,
       email: fields[4] as String,
+      disableBranding: fields[5] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, SolevatoContact obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class SolevatoContactAdapter extends TypeAdapter<SolevatoContact> {
       ..writeByte(3)
       ..write(obj.name)
       ..writeByte(4)
-      ..write(obj.email);
+      ..write(obj.email)
+      ..writeByte(5)
+      ..write(obj.disableBranding);
   }
 
   @override
@@ -47,9 +50,9 @@ class SolevatoContactAdapter extends TypeAdapter<SolevatoContact> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SolevatoContactAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+          other is SolevatoContactAdapter &&
+              runtimeType == other.runtimeType &&
+              typeId == other.typeId;
 }
 
 // **************************************************************************
@@ -63,6 +66,7 @@ SolevatoContact _$SolevatoContactFromJson(Map<String, dynamic> json) {
     pubsubToken: json['pubsub_token'] as String?,
     name: json['name'] as String,
     email: json['email'] as String,
+    disableBranding: json['disable_branding'] as bool?,
   );
 }
 
@@ -73,4 +77,5 @@ Map<String, dynamic> _$SolevatoContactToJson(SolevatoContact instance) =>
       'pubsub_token': instance.pubsubToken,
       'name': instance.name,
       'email': instance.email,
+      'disable_branding': instance.disableBranding,
     };

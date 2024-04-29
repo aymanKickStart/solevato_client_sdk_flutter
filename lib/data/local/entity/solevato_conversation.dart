@@ -4,6 +4,7 @@ import 'package:solevato_client_sdk_flutter/data/local/local_storage.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
+
 part 'solevato_conversation.g.dart';
 
 @JsonSerializable(explicitToJson: true)
@@ -29,11 +30,12 @@ class SolevatoConversation extends Equatable {
   @HiveField(3)
   final SolevatoContact contact;
 
-  SolevatoConversation(
-      {required this.id,
-      required this.inboxId,
-      required this.messages,
-      required this.contact});
+  SolevatoConversation({
+    required this.id,
+    required this.inboxId,
+    required this.messages,
+    required this.contact,
+  });
 
   factory SolevatoConversation.fromJson(Map<String, dynamic> json) =>
       _$SolevatoConversationFromJson(json);

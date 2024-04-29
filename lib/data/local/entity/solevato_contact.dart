@@ -34,12 +34,17 @@ class SolevatoContact extends Equatable {
   @HiveField(4)
   final String email;
 
+  @JsonKey()
+  @HiveField(5)
+  final bool? disableBranding;
+
   SolevatoContact({
     required this.id,
     required this.contactIdentifier,
     required this.pubsubToken,
     required this.name,
     required this.email,
+    this.disableBranding,
   });
 
   factory SolevatoContact.fromJson(Map<String, dynamic> json) =>
@@ -48,5 +53,5 @@ class SolevatoContact extends Equatable {
   Map<String, dynamic> toJson() => _$SolevatoContactToJson(this);
 
   @override
-  List<Object?> get props => [id, contactIdentifier, pubsubToken, name, email];
+  List<Object?> get props => [id, contactIdentifier, pubsubToken, name, email, disableBranding];
 }

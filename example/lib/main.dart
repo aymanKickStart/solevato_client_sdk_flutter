@@ -51,7 +51,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return SolevatoChat(
-      baseUrl: "https://app.solevato.com",
       inboxIdentifier: "xxxxxxxxxxxxxxxxxxx",
       user: SolevatoUser(
         identifier: "test1@test.com",
@@ -73,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.white,
       ),
       onWelcome: () {
-        print("Welcome event received");
+        debugPrint("Welcome event received");
       },
       onPing: () {
         print("Ping event received");

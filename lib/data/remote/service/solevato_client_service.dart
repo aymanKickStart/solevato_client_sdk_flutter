@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_contact.dart';
 import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_conversation.dart';
 import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_message.dart';
@@ -43,10 +45,23 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
   SolevatoClientServiceImpl(String baseUrl, {required Dio dio})
       : super(baseUrl, dio);
 
+  void _addInterceptor() {
+    if (kDebugMode) {
+      _dio.interceptors.add(LogInterceptor(
+        responseBody: true,
+        error: true,
+        request: true,
+        requestHeader: false,
+        responseHeader: false,
+      ));
+    }
+  }
+
   ///Sends message to solevato inbox
   @override
   Future<SolevatoMessage> createMessage(
       SolevatoNewMessageRequest request) async {
+    _addInterceptor();
     try {
       final createResponse = await _dio.post(
           "/public/api/v1/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}/conversations/${SolevatoClientApiInterceptor.INTERCEPTOR_CONVERSATION_IDENTIFIER_PLACEHOLDER}/messages",
@@ -67,6 +82,7 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
   ///Gets all messages of current solevato client instance's conversation
   @override
   Future<List<SolevatoMessage>> getAllMessages() async {
+    _addInterceptor();
     try {
       final createResponse = await _dio.get(
           "/public/api/v1/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}/conversations/${SolevatoClientApiInterceptor.INTERCEPTOR_CONVERSATION_IDENTIFIER_PLACEHOLDER}/messages");
@@ -75,11 +91,13 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
             .map(((json) => SolevatoMessage.fromJson(json)))
             .toList();
       } else {
+        debugPrint('Error getting messages: ${createResponse.data}');
         throw SolevatoClientException(
             createResponse.statusMessage ?? "unknown error",
             SolevatoClientExceptionType.GET_MESSAGES_FAILED);
       }
     } on DioError catch (e) {
+      debugPrint('Error getting messages: ${e.error}');
       throw SolevatoClientException(
           e.message, SolevatoClientExceptionType.GET_MESSAGES_FAILED);
     }
@@ -88,17 +106,22 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
   ///Gets contact of current solevato client instance
   @override
   Future<SolevatoContact> getContact() async {
+    _addInterceptor();
+
     try {
       final createResponse = await _dio.get(
           "/public/api/v1/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}");
       if ((createResponse.statusCode ?? 0).isBetween(199, 300)) {
+        final contact = SolevatoContact.fromJson(createResponse.data);
         return SolevatoContact.fromJson(createResponse.data);
       } else {
+        debugPrint('Error getting contact: ${createResponse.data}');
         throw SolevatoClientException(
             createResponse.statusMessage ?? "unknown error",
             SolevatoClientExceptionType.GET_CONTACT_FAILED);
       }
     } on DioError catch (e) {
+      debugPrint('Error getting contact: ${e.error}');
       throw SolevatoClientException(
           e.message, SolevatoClientExceptionType.GET_CONTACT_FAILED);
     }
@@ -107,6 +130,7 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
   ///Gets all conversation of current solevato client instance
   @override
   Future<List<SolevatoConversation>> getConversations() async {
+    _addInterceptor();
     try {
       final createResponse = await _dio.get(
           "/public/api/v1/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}/conversations");
@@ -128,6 +152,7 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
   ///Update current client instance's contact
   @override
   Future<SolevatoContact> updateContact(update) async {
+    _addInterceptor();
     try {
       final updateResponse = await _dio.patch(
           "/public/api/v1/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}",
@@ -149,6 +174,7 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
   @override
   Future<SolevatoMessage> updateMessage(
       String messageIdentifier, update) async {
+    _addInterceptor();
     try {
       final updateResponse = await _dio.patch(
           "/public/api/v1/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}/conversations/${SolevatoClientApiInterceptor.INTERCEPTOR_CONVERSATION_IDENTIFIER_PLACEHOLDER}/messages/$messageIdentifier",

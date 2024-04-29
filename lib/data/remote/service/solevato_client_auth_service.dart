@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_contact.dart';
 import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_conversation.dart';
 import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_user.dart';
@@ -38,6 +39,7 @@ class SolevatoClientAuthServiceImpl extends SolevatoClientAuthService {
       if ((createResponse.statusCode ?? 0).isBetween(199, 300)) {
         //creating contact successful continue with request
         final contact = SolevatoContact.fromJson(createResponse.data);
+        debugPrint('contact created: $contact');
         return contact;
       } else {
         throw SolevatoClientException(
@@ -45,6 +47,7 @@ class SolevatoClientAuthServiceImpl extends SolevatoClientAuthService {
             SolevatoClientExceptionType.CREATE_CONTACT_FAILED);
       }
     } on DioError catch (e) {
+      debugPrint('Error creating contact: ${e.message}');
       throw SolevatoClientException(
           e.message, SolevatoClientExceptionType.CREATE_CONTACT_FAILED);
     }

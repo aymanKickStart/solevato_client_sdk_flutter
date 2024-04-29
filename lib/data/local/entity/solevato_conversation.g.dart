@@ -44,9 +44,9 @@ class SolevatoConversationAdapter extends TypeAdapter<SolevatoConversation> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SolevatoConversationAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+          other is SolevatoConversationAdapter &&
+              runtimeType == other.runtimeType &&
+              typeId == other.typeId;
 }
 
 // **************************************************************************
@@ -65,7 +65,7 @@ SolevatoConversation _$SolevatoConversationFromJson(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _$SolevatoConversationToJson(
-        SolevatoConversation instance) =>
+    SolevatoConversation instance) =>
     <String, dynamic>{
       'id': instance.id,
       'inbox_id': instance.inboxId,

@@ -1,3 +1,5 @@
+import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_conversation.dart';
+import 'package:solevato_client_sdk_flutter/di/modules.dart';
 import 'package:solevato_client_sdk_flutter/solevato_callbacks.dart';
 import 'package:solevato_client_sdk_flutter/solevato_client.dart';
 import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_message.dart';
@@ -11,14 +13,14 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+import '../data/local/entity/solevato_contact.dart';
+import '../data/local/local_storage.dart';
+
 ///solevato chat widget
 /// {@category FlutterClientSdk}
 class SolevatoChat extends StatefulWidget {
   /// Specifies a custom app bar for solevato page widget
   final PreferredSizeWidget? appBar;
-
-  ///Installation url for solevato
-  final String baseUrl;
 
   ///Identifier for target solevato inbox.
   ///
@@ -117,7 +119,6 @@ class SolevatoChat extends StatefulWidget {
 
   const SolevatoChat(
       {Key? key,
-      required this.baseUrl,
       required this.inboxIdentifier,
       this.enablePersistence = true,
       this.user,
@@ -166,6 +167,8 @@ class _SolevatoChatState extends State<SolevatoChat> {
   SolevatoClient? solevatoClient;
 
   late final solevatoCallbacks;
+
+  bool? _disableBranding;
 
   @override
   void initState() {
@@ -226,17 +229,27 @@ class _SolevatoChatState extends State<SolevatoChat> {
         widget.onMessagesRetrieved?.call(messages);
       },
       onMessageReceived: (SolevatoMessage) {
-        _addMessage(_SolevatoMessageToTextMessage(SolevatoMessage));
+        _addMessage(
+          _SolevatoMessageToTextMessage(SolevatoMessage),
+        );
         widget.onMessageReceived?.call(SolevatoMessage);
       },
       onMessageDelivered: (SolevatoMessage, echoId) {
         _handleMessageSent(
-            _SolevatoMessageToTextMessage(SolevatoMessage, echoId: echoId));
+          _SolevatoMessageToTextMessage(
+            SolevatoMessage,
+            echoId: echoId,
+          ),
+        );
         widget.onMessageDelivered?.call(SolevatoMessage);
       },
       onMessageUpdated: (SolevatoMessage) {
-        _handleMessageUpdated(_SolevatoMessageToTextMessage(SolevatoMessage,
-            echoId: SolevatoMessage.id.toString()));
+        _handleMessageUpdated(
+          _SolevatoMessageToTextMessage(
+            SolevatoMessage,
+            echoId: SolevatoMessage.id.toString(),
+          ),
+        );
         widget.onMessageUpdated?.call(SolevatoMessage);
       },
       onMessageSent: (SolevatoMessage, echoId) {
@@ -248,34 +261,42 @@ class _SolevatoChatState extends State<SolevatoChat> {
         _handleMessageSent(textMessage);
         widget.onMessageSent?.call(SolevatoMessage);
       },
-      onConversationResolved: () {
+      onConversationResolved: (SolevatoConversation conversation) {
         final resolvedMessage = types.TextMessage(
-            id: idGen.v4(),
-            text: widget.l10n.conversationResolvedMessage,
-            author: types.User(
-                id: idGen.v4(),
-                firstName: "Bot",
-                imageUrl:
-                    "https://d2cbg94ubxgsnp.cloudfront.net/Pictures/480x270//9/9/3/512993_shutterstock_715962319converted_920340.png"),
-            status: types.Status.delivered);
+          id: idGen.v4(),
+          text: widget.l10n.conversationResolvedMessage,
+          author: types.User(
+              id: idGen.v4(),
+              firstName: "Bot",
+              imageUrl:
+                  "https://d2cbg94ubxgsnp.cloudfront.net/Pictures/480x270//9/9/3/512993_shutterstock_715962319converted_920340.png"),
+          status: types.Status.delivered,
+        );
         _addMessage(resolvedMessage);
       },
       onError: (error) {
         if (error.type == SolevatoClientExceptionType.SEND_MESSAGE_FAILED) {
           _handleSendMessageFailed(error.data);
         }
-        print("Ooops! Something went wrong. Error Cause: ${error.cause}");
+        debugPrint(
+            "Ooops! Something went wrong. Error Cause: ${error.cause} \nError Data: ${error.data} \nError Type: ${error.type}");
         widget.onError?.call(error);
+      },
+      onContactResolved: (SolevatoContact contact) {
+        debugPrint("Contact resolved: ${contact.toJson()}");
+        setState(() {
+          _disableBranding = contact.disableBranding;
+        });
       },
     );
 
     SolevatoClient.create(
-            baseUrl: widget.baseUrl,
-            inboxIdentifier: widget.inboxIdentifier,
-            user: widget.user,
-            enablePersistence: widget.enablePersistence,
-            callbacks: solevatoCallbacks)
-        .then((client) {
+      baseUrl: 'https://app.solevato.com',
+      inboxIdentifier: widget.inboxIdentifier,
+      user: widget.user,
+      enablePersistence: widget.enablePersistence,
+      callbacks: solevatoCallbacks,
+    ).then((client) async {
       setState(() {
         solevatoClient = client;
         solevatoClient!.loadMessages();
@@ -283,12 +304,14 @@ class _SolevatoChatState extends State<SolevatoChat> {
     }).onError((error, stackTrace) {
       widget.onError?.call(SolevatoClientException(
           error.toString(), SolevatoClientExceptionType.CREATE_CLIENT_FAILED));
-      print("solevato client failed with error $error: $stackTrace");
+      debugPrint("Solevato client failed with error $error: $stackTrace");
     });
   }
 
-  types.TextMessage _SolevatoMessageToTextMessage(SolevatoMessage message,
-      {String? echoId}) {
+  types.TextMessage _SolevatoMessageToTextMessage(
+    SolevatoMessage message, {
+    String? echoId,
+  }) {
     String? avatarUrl = message.sender?.avatarUrl ?? message.sender?.thumbnail;
 
     //Sets avatar url to null if its a gravatar not found url
@@ -297,17 +320,18 @@ class _SolevatoChatState extends State<SolevatoChat> {
       avatarUrl = null;
     }
     return types.TextMessage(
-        id: echoId ?? message.id.toString(),
-        author: message.isMine
-            ? _user
-            : types.User(
-                id: message.sender?.id.toString() ?? idGen.v4(),
-                firstName: message.sender?.name,
-                imageUrl: avatarUrl,
-              ),
-        text: message.content ?? "",
-        status: types.Status.seen,
-        createdAt: DateTime.parse(message.createdAt).millisecondsSinceEpoch);
+      id: echoId ?? message.id.toString(),
+      author: message.isMine
+          ? _user
+          : types.User(
+              id: message.sender?.id.toString() ?? idGen.v4(),
+              firstName: message.sender?.name,
+              imageUrl: avatarUrl,
+            ),
+      text: message.content ?? "",
+      status: types.Status.seen,
+      createdAt: DateTime.parse(message.createdAt).millisecondsSinceEpoch,
+    );
   }
 
   void _addMessage(types.Message message) {
@@ -345,7 +369,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = _messages[index].copyWith(previewData: previewData);
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _messages[index] = updatedMessage;
       });
@@ -361,7 +385,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
       return;
     }
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _messages[index] = message;
       });
@@ -373,7 +397,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
   ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _messages[index] = message;
       });
@@ -382,16 +406,19 @@ class _SolevatoChatState extends State<SolevatoChat> {
 
   void _handleSendPressed(types.PartialText message) {
     final textMessage = types.TextMessage(
-        author: _user,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        id: const Uuid().v4(),
-        text: message.text,
-        status: types.Status.sending);
+      author: _user,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      id: const Uuid().v4(),
+      text: message.text,
+      status: types.Status.sending,
+    );
 
     _addMessage(textMessage);
 
-    solevatoClient!
-        .sendMessage(content: textMessage.text, echoId: textMessage.id);
+    solevatoClient!.sendMessage(
+      content: textMessage.text,
+      echoId: textMessage.id,
+    );
     widget.onSendPressed?.call(message);
   }
 
@@ -426,27 +453,29 @@ class _SolevatoChatState extends State<SolevatoChat> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  "assets/logo_grey.png",
-                  package: 'solevato_client_sdk_flutter',
-                  width: 15,
-                  height: 15,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    "Powered by Solevato",
-                    style: TextStyle(color: Colors.black45, fontSize: 12),
+          if ((_disableBranding ?? false) == false) ...[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    "assets/logo_grey.png",
+                    package: 'solevato_client_sdk_flutter',
+                    width: 15,
+                    height: 15,
                   ),
-                )
-              ],
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      "Powered by Solevato",
+                      style: TextStyle(color: Colors.black45, fontSize: 12),
+                    ),
+                  )
+                ],
+              ),
             ),
-          )
+          ],
         ],
       ),
     );

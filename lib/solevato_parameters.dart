@@ -7,12 +7,13 @@ class SolevatoParameters extends Equatable {
   final String inboxIdentifier;
   final String? userIdentifier;
 
-  SolevatoParameters(
-      {required this.isPersistenceEnabled,
-      required this.baseUrl,
-      required this.inboxIdentifier,
-      required this.clientInstanceKey,
-      this.userIdentifier});
+  SolevatoParameters({
+    required this.isPersistenceEnabled,
+    this.baseUrl = 'https://app.solevato.com',
+    required this.inboxIdentifier,
+    required this.clientInstanceKey,
+    this.userIdentifier,
+  });
 
   @override
   List<Object?> get props => [

@@ -1,3 +1,5 @@
+import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_contact.dart';
+import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_conversation.dart';
 import 'package:solevato_client_sdk_flutter/data/solevato_repository.dart';
 import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_message.dart';
 import 'package:solevato_client_sdk_flutter/data/remote/solevato_client_exception.dart';
@@ -62,7 +64,10 @@ class SolevatoCallbacks {
   void Function(List<SolevatoMessage>)? onMessagesRetrieved;
 
   ///Triggered when an agent resolves the current conversation
-  void Function()? onConversationResolved;
+  void Function(SolevatoConversation)? onConversationResolved;
+
+  ///Triggered when an agent resolves the current contact
+  void Function(SolevatoContact)? onContactResolved;
 
   /// Triggered when any error occurs in solevato client's operations with the error
   ///
@@ -85,5 +90,6 @@ class SolevatoCallbacks {
     this.onConversationIsOffline,
     this.onConversationResolved,
     this.onError,
+    this.onContactResolved,
   });
 }

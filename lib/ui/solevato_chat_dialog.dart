@@ -12,7 +12,6 @@ import 'solevato_chat_page.dart';
 class SolevatoChatDialog extends StatefulWidget {
   static show(
     BuildContext context, {
-    required String baseUrl,
     required String inboxIdentifier,
     bool enablePersistence = true,
     required String title,
@@ -28,7 +27,6 @@ class SolevatoChatDialog extends StatefulWidget {
         context: context,
         builder: (context) {
           return SolevatoChatDialog(
-            baseUrl: baseUrl,
             inboxIdentifier: inboxIdentifier,
             title: title,
             user: user,
@@ -42,9 +40,6 @@ class SolevatoChatDialog extends StatefulWidget {
           );
         });
   }
-
-  ///Installation url for solevato
-  final String baseUrl;
 
   ///Identifier for target solevato inbox.
   ///
@@ -84,7 +79,6 @@ class SolevatoChatDialog extends StatefulWidget {
 
   const SolevatoChatDialog({
     Key? key,
-    required this.baseUrl,
     required this.inboxIdentifier,
     this.enablePersistence = true,
     required this.title,
@@ -181,7 +175,6 @@ class _SolevatoChatDialogState extends State<SolevatoChatDialog> {
             ),
             Flexible(
               child: SolevatoChat(
-                baseUrl: widget.baseUrl,
                 inboxIdentifier: widget.inboxIdentifier,
                 user: widget.user,
                 enablePersistence: widget.enablePersistence,
