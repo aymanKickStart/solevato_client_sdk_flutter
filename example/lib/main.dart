@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return SolevatoChat(
-      inboxIdentifier: "xxxxxxxxxxxxxxxxxxx",
+      inboxIdentifier: "AsYKSLt9Rcsy4zUg2sNqCHbG",
       user: SolevatoUser(
         identifier: "test1@test.com",
         name: "Tester test1",

@@ -13,6 +13,9 @@ import 'package:solevato_client_sdk_flutter/data/remote/responses/solevato_event
 import 'package:solevato_client_sdk_flutter/data/remote/service/solevato_client_service.dart';
 import 'package:flutter/material.dart';
 
+import 'local/entity/solevato_contact.dart';
+import 'local/entity/solevato_conversation.dart';
+
 /// Handles interactions between solevato client api service[clientService] and
 /// [localStorage] if persistence is enabled.
 ///
@@ -25,9 +28,17 @@ abstract class SolevatoRepository {
   final LocalStorage localStorage;
   @protected
   SolevatoCallbacks callbacks;
+
+  String inboxIdentifier;
+
   List<StreamSubscription> _subscriptions = [];
 
-  SolevatoRepository(this.clientService, this.localStorage, this.callbacks);
+  SolevatoRepository(
+    this.clientService,
+    this.localStorage,
+    this.callbacks,
+    this.inboxIdentifier,
+  );
 
   Future<void> initialize(SolevatoUser? user);
 
@@ -51,11 +62,17 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
   Timer? _publishPresenceTimer;
   Timer? _presenceResetTimer;
 
-  SolevatoRepositoryImpl(
-      {required SolevatoClientService clientService,
-      required LocalStorage localStorage,
-      required SolevatoCallbacks streamCallbacks})
-      : super(clientService, localStorage, streamCallbacks);
+  SolevatoRepositoryImpl({
+    required SolevatoClientService clientService,
+    required LocalStorage localStorage,
+    required SolevatoCallbacks streamCallbacks,
+    required String inboxIdentifier,
+  }) : super(
+          clientService,
+          localStorage,
+          streamCallbacks,
+          inboxIdentifier,
+        );
 
   /// Fetches persisted messages.
   ///
@@ -115,6 +132,19 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
 
   ///Sends message to solevato inbox
   Future<void> sendMessage(SolevatoNewMessageRequest request) async {
+    SolevatoConversation? conversation =
+        localStorage.conversationDao.getConversation();
+
+    SolevatoContact? contact = localStorage.contactDao.getContact();
+
+    if (conversation == null) {
+      conversation =  await clientService.createNewConversation(
+        inboxIdentifier,
+        contact?.contactIdentifier ?? '',
+      );
+      await localStorage.conversationDao.saveConversation(conversation);
+    }
+
     try {
       final createdMessage = await clientService.createMessage(request);
       await localStorage.messagesDao.saveMessage(createdMessage);

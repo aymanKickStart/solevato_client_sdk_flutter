@@ -453,7 +453,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
               ),
             ),
           ),
-          if ((_disableBranding ?? false) == false) ...[
+          if ((_disableBranding ?? true) == false) ...[
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(

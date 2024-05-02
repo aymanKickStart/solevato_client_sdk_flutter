@@ -14,6 +14,8 @@ import 'package:solevato_client_sdk_flutter/data/remote/requests/solevato_new_me
 import 'package:dio/dio.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import '../../local/entity/solevato_user.dart';
+
 /// Service for handling solevato api calls
 /// See [SolevatoClientServiceImpl]
 abstract class SolevatoClientService {
@@ -28,6 +30,12 @@ abstract class SolevatoClientService {
   Future<SolevatoContact> getContact();
 
   Future<List<SolevatoConversation>> getConversations();
+
+  Future<SolevatoConversation> createNewConversation(
+      String inboxIdentifier, String contactIdentifier);
+
+  Future<SolevatoContact> createNewContact(
+      String inboxIdentifier, SolevatoUser? user);
 
   Future<SolevatoMessage> createMessage(SolevatoNewMessageRequest request);
 
@@ -223,5 +231,53 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
         break;
     }
     connection?.sink.add(jsonEncode(action.toJson()));
+  }
+
+  ///Creates a new conversation for inbox with [inboxIdentifier] and contact with source id [contactIdentifier]
+  @override
+  Future<SolevatoConversation> createNewConversation(
+      String inboxIdentifier, String contactIdentifier) async {
+    try {
+      final createResponse = await _dio.post(
+          "/public/api/v1/inboxes/$inboxIdentifier/contacts/$contactIdentifier/conversations");
+      if ((createResponse.statusCode ?? 0).isBetween(199, 300)) {
+        //creating contact successful continue with request
+        final newConversation =
+        SolevatoConversation.fromJson(createResponse.data);
+        return newConversation;
+      } else {
+        throw SolevatoClientException(
+            createResponse.statusMessage ?? "unknown error",
+            SolevatoClientExceptionType.CREATE_CONVERSATION_FAILED);
+      }
+    } on DioError catch (e) {
+      throw SolevatoClientException(
+          e.message, SolevatoClientExceptionType.CREATE_CONVERSATION_FAILED);
+    }
+  }
+
+  ///Creates new contact for inbox with [inboxIdentifier] and passes [user] body to be linked to created contact
+  @override
+  Future<SolevatoContact> createNewContact(
+      String inboxIdentifier, SolevatoUser? user) async {
+    try {
+      final createResponse = await _dio.post(
+          "/public/api/v1/inboxes/$inboxIdentifier/contacts",
+          data: user?.toJson());
+      if ((createResponse.statusCode ?? 0).isBetween(199, 300)) {
+        //creating contact successful continue with request
+        final contact = SolevatoContact.fromJson(createResponse.data);
+        debugPrint('contact created: $contact');
+        return contact;
+      } else {
+        throw SolevatoClientException(
+            createResponse.statusMessage ?? "unknown error",
+            SolevatoClientExceptionType.CREATE_CONTACT_FAILED);
+      }
+    } on DioError catch (e) {
+      debugPrint('Error creating contact: ${e.message}');
+      throw SolevatoClientException(
+          e.message, SolevatoClientExceptionType.CREATE_CONTACT_FAILED);
+    }
   }
 }

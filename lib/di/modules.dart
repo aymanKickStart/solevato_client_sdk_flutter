@@ -195,7 +195,9 @@ final SolevatoRepositoryProvider =
       ref.read(solevatoClientServiceProvider(repoParams.params));
 
   return SolevatoRepositoryImpl(
-      clientService: clientService,
-      localStorage: localStorage,
-      streamCallbacks: repoParams.callbacks);
+    clientService: clientService,
+    localStorage: localStorage,
+    streamCallbacks: repoParams.callbacks,
+    inboxIdentifier: repoParams.params.inboxIdentifier,
+  );
 });
