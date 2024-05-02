@@ -11,10 +11,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:intl/intl.dart';
+import 'package:solevato_client_sdk_flutter/util/url_launcher.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../data/local/entity/solevato_contact.dart';
 import '../data/local/local_storage.dart';
+import '../util/package_info_handler.dart';
 
 ///solevato chat widget
 /// {@category FlutterClientSdk}
@@ -173,6 +176,10 @@ class _SolevatoChatState extends State<SolevatoChat> {
   @override
   void initState() {
     super.initState();
+
+    WidgetsFlutterBinding.ensureInitialized();
+
+    PackageInfoHandler.instance.init();
 
     if (widget.user == null) {
       _user = types.User(id: idGen.v4());
@@ -453,26 +460,33 @@ class _SolevatoChatState extends State<SolevatoChat> {
               ),
             ),
           ),
-          if ((_disableBranding ?? false) == false) ...[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    "assets/logo_grey.png",
-                    package: 'solevato_client_sdk_flutter',
-                    width: 15,
-                    height: 15,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      "Powered by Solevato",
-                      style: TextStyle(color: Colors.black45, fontSize: 12),
+          if ((_disableBranding ?? false) == true) ...[
+            InkWell(
+              onTap: () async {
+                String? url =
+                    'https://solevato.com/?utm_source=widget_branding&utm_referrer=${PackageInfoHandler.instance.appName}';
+                LauncherHandler.url(url: url);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      "assets/logo_grey.png",
+                      package: 'solevato_client_sdk_flutter',
+                      width: 15,
+                      height: 15,
                     ),
-                  )
-                ],
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        "Powered by Solevato",
+                        style: TextStyle(color: Colors.black45, fontSize: 12),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ],

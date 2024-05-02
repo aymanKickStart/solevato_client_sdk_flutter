@@ -31,7 +31,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
@@ -51,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return SolevatoChat(
-      inboxIdentifier: "xxxxxxxxxxxxxxxxxxx",
+      inboxIdentifier: "AsYKSLt9Rcsy4zUg2sNqCHbG",
       user: SolevatoUser(
         identifier: "test1@test.com",
         name: "Tester test1",
