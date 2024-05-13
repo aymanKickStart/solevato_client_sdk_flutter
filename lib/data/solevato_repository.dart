@@ -108,21 +108,30 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
       }
 
       //refresh contact
-      final contact = await clientService.getContact();
-      localStorage.contactDao.saveContact(contact);
+      try {
+        final contact = await clientService.getContact();
+        localStorage.contactDao.saveContact(contact);
+        callbacks.onContactResolved?.call(contact);
+      } catch (e) {
+        debugPrint('Error get contact: ${e}');
+      }
 
-      callbacks.onContactResolved?.call(contact);
+      //Refresh conversation
+      try {
+        final conversations = await clientService.getConversations();
 
-      //refresh conversation
-      final conversations = await clientService.getConversations();
-      final persistedConversation =
-          localStorage.conversationDao.getConversation()!;
-      final refreshedConversation = conversations.firstWhere(
-          (element) => element.id == persistedConversation.id,
-          orElse: () =>
-              persistedConversation //highly unlikely orElse will be called but still added it just in case
-          );
-      localStorage.conversationDao.saveConversation(refreshedConversation);
+        final persistedConversation =
+            localStorage.conversationDao.getConversation()!;
+
+        final refreshedConversation = conversations.firstWhere(
+            (element) => element.id == persistedConversation.id,
+            orElse: () =>
+                persistedConversation //highly unlikely orElse will be called but still added it just in case
+            );
+        localStorage.conversationDao.saveConversation(refreshedConversation);
+      } catch (e) {
+        debugPrint('Error get conversation: ${e}');
+      }
     } on SolevatoClientException catch (e) {
       callbacks.onError?.call(e);
     }
@@ -138,7 +147,7 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
     SolevatoContact? contact = localStorage.contactDao.getContact();
 
     if (conversation == null) {
-      conversation =  await clientService.createNewConversation(
+      conversation = await clientService.createNewConversation(
         inboxIdentifier,
         contact?.contactIdentifier ?? '',
       );
