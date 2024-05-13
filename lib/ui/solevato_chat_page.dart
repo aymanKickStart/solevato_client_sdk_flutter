@@ -376,7 +376,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = _messages[index].copyWith(previewData: previewData);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
       setState(() {
         _messages[index] = updatedMessage;
       });
@@ -392,7 +392,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
       return;
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
       setState(() {
         _messages[index] = message;
       });
@@ -404,7 +404,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
   ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
       setState(() {
         _messages[index] = message;
       });
