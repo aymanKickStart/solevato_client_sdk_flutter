@@ -124,15 +124,11 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
                 persistedConversation //highly unlikely orElse will be called but still added it just in case
             );
         localStorage.conversationDao.saveConversation(refreshedConversation);
-
-        if (clientService.connection == null && !_isListeningForEvents) {
-          listenForEvents();
-        }
       }
+      listenForEvents();
     } on SolevatoClientException catch (e) {
       callbacks.onError?.call(e);
     }
-
   }
 
   ///Sends message to solevato inbox
@@ -147,10 +143,6 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
         contact?.contactIdentifier ?? '',
       );
       await localStorage.conversationDao.saveConversation(conversation);
-    }
-
-    if (clientService.connection == null && !_isListeningForEvents) {
-      listenForEvents();
     }
 
     try {
@@ -284,5 +276,3 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
     });
   }
 }
-
-
