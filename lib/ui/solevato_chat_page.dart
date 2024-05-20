@@ -301,7 +301,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
     );
 
     SolevatoClient.create(
-      baseUrl: 'http://localhost:3000',
+      baseUrl: 'https://app.solevato.com',
       inboxIdentifier: widget.inboxIdentifier,
       user: widget.user,
       enablePersistence: widget.enablePersistence,
