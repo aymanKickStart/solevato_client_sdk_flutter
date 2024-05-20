@@ -58,7 +58,7 @@ class SolevatoMessage extends Equatable {
   final SolevatoEventMessageUser? sender;
 
   ///checks if message belongs to contact making the request
-  bool get isMine => messageType != 1;
+  bool get isMine => messageType == 0;
 
   SolevatoMessage(
       {required this.id,

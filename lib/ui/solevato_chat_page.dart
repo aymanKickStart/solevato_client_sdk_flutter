@@ -18,6 +18,7 @@ import 'package:uuid/uuid.dart';
 import '../data/local/entity/solevato_contact.dart';
 import '../data/local/local_storage.dart';
 import '../util/package_info_handler.dart';
+import 'package:synchronized/synchronized.dart';
 
 ///solevato chat widget
 /// {@category FlutterClientSdk}
@@ -163,6 +164,8 @@ class _SolevatoChatState extends State<SolevatoChat> {
   ///
   List<types.Message> _messages = [];
 
+  final _lockMessages = Lock();
+
   late String status;
 
   final idGen = Uuid();
@@ -245,16 +248,16 @@ class _SolevatoChatState extends State<SolevatoChat> {
         _handleMessageSent(
           _SolevatoMessageToTextMessage(
             SolevatoMessage,
-            echoId: echoId,
           ),
+          echoId: echoId
         );
         widget.onMessageDelivered?.call(SolevatoMessage);
       },
       onMessageUpdated: (SolevatoMessage) {
+
         _handleMessageUpdated(
           _SolevatoMessageToTextMessage(
             SolevatoMessage,
-            echoId: SolevatoMessage.id.toString(),
           ),
         );
         widget.onMessageUpdated?.call(SolevatoMessage);
@@ -265,7 +268,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
             author: _user,
             text: SolevatoMessage.content ?? "",
             status: types.Status.delivered);
-        _handleMessageSent(textMessage);
+        _handleMessageSent(textMessage, echoId: echoId);
         widget.onMessageSent?.call(SolevatoMessage);
       },
       onConversationResolved: (SolevatoConversation conversation) {
@@ -276,7 +279,8 @@ class _SolevatoChatState extends State<SolevatoChat> {
               id: idGen.v4(),
               firstName: "Bot",
               imageUrl:
-                  "https://d2cbg94ubxgsnp.cloudfront.net/Pictures/480x270//9/9/3/512993_shutterstock_715962319converted_920340.png"),
+                  "https://d2cbg94ubxgsnp.cloudfront.net/Pictures/480x270//9/9/3/512993_shutterstock_715962319converted_920340.png"
+          ),
           status: types.Status.delivered,
         );
         _addMessage(resolvedMessage);
@@ -290,7 +294,6 @@ class _SolevatoChatState extends State<SolevatoChat> {
         widget.onError?.call(error);
       },
       onContactResolved: (SolevatoContact contact) {
-        debugPrint("Contact resolved: ${contact.toJson()}");
         setState(() {
           _disableBranding = contact.disableBranding;
         });
@@ -298,7 +301,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
     );
 
     SolevatoClient.create(
-      baseUrl: 'https://app.solevato.com',
+      baseUrl: 'http://localhost:3000',
       inboxIdentifier: widget.inboxIdentifier,
       user: widget.user,
       enablePersistence: widget.enablePersistence,
@@ -326,18 +329,30 @@ class _SolevatoChatState extends State<SolevatoChat> {
     if (avatarUrl?.contains("?d=404") ?? false) {
       avatarUrl = null;
     }
+    var msgID = echoId == "" || echoId == null ? message.id.toString() : echoId;
+
     return types.TextMessage(
-      id: echoId ?? message.id.toString(),
-      author: message.isMine
-          ? _user
-          : types.User(
-              id: message.sender?.id.toString() ?? idGen.v4(),
-              firstName: message.sender?.name,
-              imageUrl: avatarUrl,
-            ),
+      id: msgID,
+      author: message.isMine ? _user : supportAgent(message, avatarUrl),
       text: message.content ?? "",
       status: types.Status.seen,
       createdAt: DateTime.parse(message.createdAt).millisecondsSinceEpoch,
+    );
+  }
+
+  types.User supportAgent(SolevatoMessage message, String? avatarUrl) {
+    if(message.sender == null) {
+      return types.User(
+          id: idGen.v4(),
+          firstName: "Bot",
+          imageUrl:
+          "https://d2cbg94ubxgsnp.cloudfront.net/Pictures/480x270//9/9/3/512993_shutterstock_715962319converted_920340.png"
+      );
+    }
+    return types.User(
+      id: message.sender?.id.toString() ?? idGen.v4(),
+      firstName: message.sender?.name,
+      imageUrl: avatarUrl,
     );
   }
 
@@ -369,10 +384,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
     widget.onMessageTap?.call(message);
   }
 
-  void _handlePreviewDataFetched(
-    types.TextMessage message,
-    types.PreviewData previewData,
-  ) {
+  void _handlePreviewDataFetched(types.TextMessage message,types.PreviewData previewData) {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = _messages[index].copyWith(previewData: previewData);
 
@@ -383,30 +395,36 @@ class _SolevatoChatState extends State<SolevatoChat> {
     });
   }
 
-  void _handleMessageSent(
-    types.Message message,
-  ) {
-    final index = _messages.indexWhere((element) => element.id == message.id);
+  void _handleMessageSent(types.Message message, {String? echoId}) async {
+    var msgID = echoId == "" || echoId == null ? message.id.toString() : echoId;
 
-    if (_messages[index].status == types.Status.seen) {
-      return;
-    }
+    await _lockMessages.synchronized(() {
+      final index = _messages.indexWhere((element) => element.id == msgID);
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      setState(() {
-        _messages[index] = message;
+      if (index == -1) return;
+
+      if (_messages[index].status == types.Status.seen) {
+        return;
+      }
+
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        setState(() {
+          _messages[index] = message;
+        });
       });
     });
   }
 
-  void _handleMessageUpdated(
-    types.Message message,
-  ) {
-    final index = _messages.indexWhere((element) => element.id == message.id);
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      setState(() {
-        _messages[index] = message;
+  void _handleMessageUpdated(types.Message message) async {
+
+    await _lockMessages.synchronized(() {
+      final index = _messages.indexWhere((element) => element.id == message.id.toString());
+
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        setState(() {
+          _messages[index] = message;
+        });
       });
     });
   }
@@ -460,7 +478,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
               ),
             ),
           ),
-          if ((_disableBranding ?? true) == true) ...[
+          if ((_disableBranding ?? true) == false) ...[
             InkWell(
               onTap: () async {
                 String? url =

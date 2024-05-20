@@ -39,7 +39,7 @@ class SolevatoClientAuthServiceImpl extends SolevatoClientAuthService {
       if ((createResponse.statusCode ?? 0).isBetween(199, 300)) {
         //creating contact successful continue with request
         final contact = SolevatoContact.fromJson(createResponse.data);
-        debugPrint('contact created: $contact');
+        debugPrint('solevato-client-auth-service: contact created: $contact - $createResponse');
         return contact;
       } else {
         throw SolevatoClientException(

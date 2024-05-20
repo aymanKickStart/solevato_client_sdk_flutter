@@ -20,7 +20,7 @@ void main() {
 
     final testSolevatoParameters = SolevatoParameters(
         isPersistenceEnabled: true,
-        baseUrl: "https://app.solevato.com",
+        baseUrl: "http://localhost:3000",
         inboxIdentifier: "testInboxIdentifier",
         clientInstanceKey: "testInstanceKey");
 
@@ -82,7 +82,7 @@ void main() {
       //GIVEN
       final testSolevatoParameters = SolevatoParameters(
           isPersistenceEnabled: true,
-          baseUrl: "https://app.solevato.com",
+          baseUrl: "http://localhost:3000",
           inboxIdentifier: "testInboxIdentifier",
           clientInstanceKey: "testInstanceKey");
 
@@ -100,7 +100,7 @@ void main() {
       //GIVEN
       final testSolevatoParameters = SolevatoParameters(
           isPersistenceEnabled: false,
-          baseUrl: "https://app.solevato.com",
+          baseUrl: "http://localhost:3000",
           inboxIdentifier: "testInboxIdentifier",
           clientInstanceKey: "testInstanceKey");
 
@@ -118,7 +118,7 @@ void main() {
       //GIVEN
       final testSolevatoParameters = SolevatoParameters(
           isPersistenceEnabled: true,
-          baseUrl: "https://app.solevato.com",
+          baseUrl: "http://localhost:3000",
           inboxIdentifier: "testInboxIdentifier",
           clientInstanceKey: "testInstanceKey");
 
@@ -136,7 +136,7 @@ void main() {
       //GIVEN
       final testSolevatoParameters = SolevatoParameters(
           isPersistenceEnabled: false,
-          baseUrl: "https://app.solevato.com",
+          baseUrl: "http://localhost:3000",
           inboxIdentifier: "testInboxIdentifier",
           clientInstanceKey: "testInstanceKey");
 
@@ -154,7 +154,7 @@ void main() {
       //GIVEN
       final testSolevatoParameters = SolevatoParameters(
           isPersistenceEnabled: true,
-          baseUrl: "https://app.solevato.com",
+          baseUrl: "http://localhost:3000",
           inboxIdentifier: "testInboxIdentifier",
           clientInstanceKey: "testInstanceKey");
 
@@ -172,7 +172,7 @@ void main() {
       //GIVEN
       final testSolevatoParameters = SolevatoParameters(
           isPersistenceEnabled: false,
-          baseUrl: "https://app.solevato.com",
+          baseUrl: "http://localhost:3000",
           inboxIdentifier: "testInboxIdentifier",
           clientInstanceKey: "testInstanceKey");
 
@@ -190,7 +190,7 @@ void main() {
       //GIVEN
       final testSolevatoParameters = SolevatoParameters(
           isPersistenceEnabled: true,
-          baseUrl: "https://app.solevato.com",
+          baseUrl: "http://localhost:3000",
           inboxIdentifier: "testInboxIdentifier",
           clientInstanceKey: "testInstanceKey");
 
@@ -208,7 +208,7 @@ void main() {
       //GIVEN
       final testSolevatoParameters = SolevatoParameters(
           isPersistenceEnabled: false,
-          baseUrl: "https://app.solevato.com",
+          baseUrl: "http://localhost:3000",
           inboxIdentifier: "testInboxIdentifier",
           clientInstanceKey: "testInstanceKey");
 

@@ -19,18 +19,18 @@ class SolevatoClientApiInterceptor extends Interceptor {
   final requestLock = synchronized.Lock();
   final responseLock = synchronized.Lock();
 
-  SolevatoClientApiInterceptor(
-      this._inboxIdentifier, this._localStorage, this._authService);
+  SolevatoClientApiInterceptor(this._inboxIdentifier, this._localStorage,
+      this._authService);
 
   /// Creates a new contact and conversation when no persisted contact is found when an api call is made
   @override
-  Future<void> onRequest(
-      RequestOptions options, RequestInterceptorHandler handler) async {
+  Future<void> onRequest(RequestOptions options,
+      RequestInterceptorHandler handler) async {
     await requestLock.synchronized(() async {
       RequestOptions newOptions = options;
       SolevatoContact? contact = _localStorage.contactDao.getContact();
-      SolevatoConversation? conversation =
-          _localStorage.conversationDao.getConversation();
+      SolevatoConversation? conversation = _localStorage.conversationDao.getConversation();
+
 
       if (contact == null) {
         // create new contact from user if no token found
@@ -44,10 +44,16 @@ class SolevatoClientApiInterceptor extends Interceptor {
       newOptions.path = newOptions.path.replaceAll(
           INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER,
           contact.contactIdentifier ?? '');
+
       if (conversation != null) {
         newOptions.path = newOptions.path.replaceAll(
             INTERCEPTOR_CONVERSATION_IDENTIFIER_PLACEHOLDER,
             "${conversation.id}");
+      }
+
+      if (conversation == null && newOptions.path.contains(INTERCEPTOR_CONVERSATION_IDENTIFIER_PLACEHOLDER)) {
+        options.cancelToken?.cancel();
+        // TODO: cancel request
       }
 
       handler.next(newOptions);
@@ -57,8 +63,8 @@ class SolevatoClientApiInterceptor extends Interceptor {
   /// Clears and recreates contact when a 401 (Unauthorized), 403 (Forbidden) or 404 (Not found)
   /// response is returned from solevato public client api
   @override
-  Future<void> onResponse(
-      Response response, ResponseInterceptorHandler handler) async {
+  Future<void> onResponse(Response response,
+      ResponseInterceptorHandler handler) async {
     await responseLock.synchronized(() async {
       if (response.statusCode == 401 ||
           response.statusCode == 403 ||
