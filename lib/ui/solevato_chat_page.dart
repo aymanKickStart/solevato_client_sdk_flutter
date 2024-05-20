@@ -481,7 +481,6 @@ class _SolevatoChatState extends State<SolevatoChat> {
               child: Chat(
                 messages: _messages,
                 buildCustomMessage: (message) {
-                  print('@@@@ ${message.author.toJson()}');
                   return CustomTextMessage(
                     isMe: widget.user?.identifier == message.author.id,
                     showUsersName: widget.showUserNames,
