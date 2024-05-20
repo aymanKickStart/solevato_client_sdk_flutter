@@ -39,7 +39,6 @@ class CustomTextMessage extends StatelessWidget {
         userName,
       );
     }
-    print('@@@@ ${author?.imageUrl} - ${author?.firstName}');
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15),
       padding: EdgeInsetsDirectional.only(

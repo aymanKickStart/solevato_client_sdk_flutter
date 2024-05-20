@@ -248,14 +248,12 @@ class _SolevatoChatState extends State<SolevatoChat> {
       },
       onMessageReceived: (SolevatoMessage) {
 
-        print("onMessageReceived: ${SolevatoMessage.toString()}");
         _addMessage(
           _SolevatoMessageToTextMessage(SolevatoMessage),
         );
         widget.onMessageReceived?.call(SolevatoMessage);
       },
       onMessageDelivered: (SolevatoMessage, echoId) {
-        print("onMessageDelivered: ${SolevatoMessage.toString()}");
 
         _handleMessageSent(
             _SolevatoMessageToTextMessage(
