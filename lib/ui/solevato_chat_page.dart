@@ -342,7 +342,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
     var msgID = echoId == "" || echoId == null ? message.id.toString() : echoId;
 
     return types.CustomMessage(
-      id: emsgID,
+      id: msgID,
       author: message.isMine
           ? _user
           : types.User(
@@ -439,6 +439,9 @@ class _SolevatoChatState extends State<SolevatoChat> {
 
     await _lockMessages.synchronized(() {
       final index = _messages.indexWhere((element) => element.id == message.id.toString());
+
+
+      if (index == -1) return;
 
       WidgetsBinding.instance?.addPostFrameCallback((_) {
         setState(() {

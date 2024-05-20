@@ -46,6 +46,7 @@ abstract class SolevatoClientService {
   void startWebSocketConnection(String contactPubsubToken,
       {WebSocketChannel Function(Uri)? onStartConnection});
 
+
   void sendAction(String contactPubsubToken, SolevatoActionType action);
 }
 
