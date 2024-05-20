@@ -5,6 +5,7 @@ import 'package:solevato_client_sdk_flutter/solevato_client.dart';
 import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_message.dart';
 import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_user.dart';
 import 'package:solevato_client_sdk_flutter/data/remote/solevato_client_exception.dart';
+import 'package:solevato_client_sdk_flutter/ui/custom_text_message.dart';
 import 'package:solevato_client_sdk_flutter/ui/solevato_chat_theme.dart';
 import 'package:solevato_client_sdk_flutter/ui/solevato_l10n.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,10 @@ import '../data/local/entity/solevato_contact.dart';
 import '../data/local/local_storage.dart';
 import '../util/package_info_handler.dart';
 import 'package:synchronized/synchronized.dart';
+
+import 'package:flutter_chat_ui/src/widgets/inherited_chat_theme.dart';
+
+import 'package:flutter_chat_ui/src/util.dart';
 
 ///solevato chat widget
 /// {@category FlutterClientSdk}
@@ -263,18 +268,23 @@ class _SolevatoChatState extends State<SolevatoChat> {
         widget.onMessageUpdated?.call(SolevatoMessage);
       },
       onMessageSent: (SolevatoMessage, echoId) {
-        final textMessage = types.TextMessage(
-            id: echoId,
-            author: _user,
-            text: SolevatoMessage.content ?? "",
-            status: types.Status.delivered);
+        final textMessage = types.CustomMessage(
+          id: echoId,
+          author: _user,
+          metadata: {
+            "content": SolevatoMessage.content ?? '',
+          },
+          status: types.Status.delivered,
+        );
         _handleMessageSent(textMessage, echoId: echoId);
         widget.onMessageSent?.call(SolevatoMessage);
       },
       onConversationResolved: (SolevatoConversation conversation) {
-        final resolvedMessage = types.TextMessage(
+        final resolvedMessage = types.CustomMessage(
           id: idGen.v4(),
-          text: widget.l10n.conversationResolvedMessage,
+          metadata: {
+            "content": widget.l10n.conversationResolvedMessage,
+          },
           author: types.User(
               id: idGen.v4(),
               firstName: "Bot",
@@ -318,7 +328,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
     });
   }
 
-  types.TextMessage _SolevatoMessageToTextMessage(
+  types.CustomMessage _SolevatoMessageToTextMessage(
     SolevatoMessage message, {
     String? echoId,
   }) {
@@ -331,30 +341,39 @@ class _SolevatoChatState extends State<SolevatoChat> {
     }
     var msgID = echoId == "" || echoId == null ? message.id.toString() : echoId;
 
-    return types.TextMessage(
-      id: msgID,
-      author: message.isMine ? _user : supportAgent(message, avatarUrl),
-      text: message.content ?? "",
+    return types.CustomMessage(
+      id: emsgID,
+      author: message.isMine
+          ? _user
+          : types.User(
+        id: message.sender?.id.toString() ?? idGen.v4(),
+        firstName: message.sender?.name,
+        imageUrl: avatarUrl,
+      ),
+      metadata: {
+        'content': message.content ?? "",
+      },
       status: types.Status.seen,
-      createdAt: DateTime.parse(message.createdAt).millisecondsSinceEpoch,
+      createdAt: DateTime
+          .parse(message.createdAt)
+          .millisecondsSinceEpoch,
     );
   }
-
-  types.User supportAgent(SolevatoMessage message, String? avatarUrl) {
-    if(message.sender == null) {
+    types.User supportAgent(SolevatoMessage message, String? avatarUrl) {
+      if (message.sender == null) {
+        return types.User(
+            id: idGen.v4(),
+            firstName: "Bot",
+            imageUrl:
+            "https://d2cbg94ubxgsnp.cloudfront.net/Pictures/480x270//9/9/3/512993_shutterstock_715962319converted_920340.png"
+        );
+      }
       return types.User(
-          id: idGen.v4(),
-          firstName: "Bot",
-          imageUrl:
-          "https://d2cbg94ubxgsnp.cloudfront.net/Pictures/480x270//9/9/3/512993_shutterstock_715962319converted_920340.png"
+        id: message.sender?.id.toString() ?? idGen.v4(),
+        firstName: message.sender?.name,
+        imageUrl: avatarUrl,
       );
     }
-    return types.User(
-      id: message.sender?.id.toString() ?? idGen.v4(),
-      firstName: message.sender?.name,
-      imageUrl: avatarUrl,
-    );
-  }
 
   void _addMessage(types.Message message) {
     setState(() {
@@ -430,18 +449,20 @@ class _SolevatoChatState extends State<SolevatoChat> {
   }
 
   void _handleSendPressed(types.PartialText message) {
-    final textMessage = types.TextMessage(
+    final textMessage = types.CustomMessage(
       author: _user,
       createdAt: DateTime.now().millisecondsSinceEpoch,
       id: const Uuid().v4(),
-      text: message.text,
+      metadata: {
+        'content': message.text,
+      },
       status: types.Status.sending,
     );
 
     _addMessage(textMessage);
 
     solevatoClient!.sendMessage(
-      content: textMessage.text,
+      content: textMessage.metadata?['content'] ?? '',
       echoId: textMessage.id,
     );
     widget.onSendPressed?.call(message);
@@ -458,9 +479,18 @@ class _SolevatoChatState extends State<SolevatoChat> {
           Flexible(
             child: Padding(
               padding: EdgeInsets.only(
-                  left: horizontalPadding, right: horizontalPadding),
+                left: horizontalPadding,
+                right: horizontalPadding,
+              ),
               child: Chat(
                 messages: _messages,
+                buildCustomMessage: (message) => CustomTextMessage(
+                  isMe: widget.user?.identifier == message.author.id,
+                  showUsersName: widget.showUserNames,
+                  author: message.author,
+                  message: message.metadata?['content'] ?? '',
+                  theme: widget.theme,
+                ),
                 onMessageTap: _handleMessageTap,
                 onPreviewDataFetched: _handlePreviewDataFetched,
                 onSendPressed: _handleSendPressed,

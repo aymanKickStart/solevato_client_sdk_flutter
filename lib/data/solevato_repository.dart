@@ -107,10 +107,13 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
       }
 
       //refresh contact
-      final contact = await clientService.getContact();
-      localStorage.contactDao.saveContact(contact);
-
-      callbacks.onContactResolved?.call(contact);
+      try {
+        final contact = await clientService.getContact();
+        localStorage.contactDao.saveContact(contact);
+        callbacks.onContactResolved?.call(contact);
+      } catch (e) {
+        debugPrint('Error get contact: ${e}');
+      }
 
       //refresh conversation
       final conversations = await clientService.getConversations();
