@@ -12,7 +12,6 @@ import 'package:solevato_client_sdk_flutter/data/remote/requests/solevato_new_me
 import 'package:solevato_client_sdk_flutter/data/remote/responses/solevato_event.dart';
 import 'package:solevato_client_sdk_flutter/data/remote/service/solevato_client_service.dart';
 import 'package:flutter/material.dart';
-
 import 'local/entity/solevato_contact.dart';
 import 'local/entity/solevato_conversation.dart';
 
@@ -116,18 +115,24 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
       //refresh conversation
       final conversations = await clientService.getConversations();
       final persistedConversation =
-          localStorage.conversationDao.getConversation()!;
-      final refreshedConversation = conversations.firstWhere(
-          (element) => element.id == persistedConversation.id,
-          orElse: () =>
-              persistedConversation //highly unlikely orElse will be called but still added it just in case
-          );
-      localStorage.conversationDao.saveConversation(refreshedConversation);
+          localStorage.conversationDao.getConversation();
+
+      if (persistedConversation != null && conversations.length > 0) {
+        final refreshedConversation = conversations.firstWhere(
+            (element) => element.id == persistedConversation.id,
+            orElse: () =>
+                persistedConversation //highly unlikely orElse will be called but still added it just in case
+            );
+        localStorage.conversationDao.saveConversation(refreshedConversation);
+
+        if (clientService.connection == null && !_isListeningForEvents) {
+          listenForEvents();
+        }
+      }
     } on SolevatoClientException catch (e) {
       callbacks.onError?.call(e);
     }
 
-    listenForEvents();
   }
 
   ///Sends message to solevato inbox
@@ -136,22 +141,22 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
         localStorage.conversationDao.getConversation();
 
     SolevatoContact? contact = localStorage.contactDao.getContact();
-
     if (conversation == null) {
-      conversation =  await clientService.createNewConversation(
+      conversation = await clientService.createNewConversation(
         inboxIdentifier,
         contact?.contactIdentifier ?? '',
       );
       await localStorage.conversationDao.saveConversation(conversation);
     }
 
+    if (clientService.connection == null && !_isListeningForEvents) {
+      listenForEvents();
+    }
+
     try {
       final createdMessage = await clientService.createMessage(request);
       await localStorage.messagesDao.saveMessage(createdMessage);
       callbacks.onMessageSent?.call(createdMessage, request.echoId);
-      if (clientService.connection != null && !_isListeningForEvents) {
-        listenForEvents();
-      }
     } on SolevatoClientException catch (e) {
       callbacks.onError?.call(
           SolevatoClientException(e.cause, e.type, data: request.echoId));
@@ -164,6 +169,7 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
   @override
   void listenForEvents() {
     final token = localStorage.contactDao.getContact()?.pubsubToken;
+
     if (token == null) {
       return;
     }
@@ -188,8 +194,8 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
         final message = solevatoEvent.message!.data!.getMessage();
         localStorage.messagesDao.saveMessage(message);
         if (message.isMine) {
-          callbacks.onMessageDelivered
-              ?.call(message, solevatoEvent.message!.data!.echoId!);
+          var echoId = solevatoEvent.message!.data!.echoId!;
+          callbacks.onMessageDelivered?.call(message, echoId);
         } else {
           callbacks.onMessageReceived?.call(message);
         }
@@ -199,7 +205,6 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
 
         final message = solevatoEvent.message!.data!.getMessage();
         localStorage.messagesDao.saveMessage(message);
-
         callbacks.onMessageUpdated?.call(message);
       } else if (solevatoEvent.message?.event ==
           SolevatoEventMessageType.conversation_typing_off) {
@@ -232,7 +237,7 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
           callbacks.onConversationIsOffline?.call();
         }
       } else {
-        debugPrint("solevato unknown event: $event");
+        debugPrint("solevato unknown event: ${event.toString()}");
       }
     });
     _subscriptions.add(newSubscription);
@@ -279,3 +284,5 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
     });
   }
 }
+
+

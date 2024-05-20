@@ -71,9 +71,12 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
       SolevatoNewMessageRequest request) async {
     _addInterceptor();
     try {
+      CancelToken cancelToken = CancelToken();
+
       final createResponse = await _dio.post(
           "/public/api/v1/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}/conversations/${SolevatoClientApiInterceptor.INTERCEPTOR_CONVERSATION_IDENTIFIER_PLACEHOLDER}/messages",
-          data: request.toJson());
+          data: request.toJson(),
+          cancelToken: cancelToken);
       if ((createResponse.statusCode ?? 0).isBetween(199, 300)) {
         return SolevatoMessage.fromJson(createResponse.data);
       } else {
@@ -92,8 +95,10 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
   Future<List<SolevatoMessage>> getAllMessages() async {
     _addInterceptor();
     try {
+      CancelToken cancelToken = CancelToken();
       final createResponse = await _dio.get(
-          "/public/api/v1/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}/conversations/${SolevatoClientApiInterceptor.INTERCEPTOR_CONVERSATION_IDENTIFIER_PLACEHOLDER}/messages");
+          "/public/api/v1/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}/conversations/${SolevatoClientApiInterceptor.INTERCEPTOR_CONVERSATION_IDENTIFIER_PLACEHOLDER}/messages",
+          cancelToken: cancelToken);
       if ((createResponse.statusCode ?? 0).isBetween(199, 300)) {
         return (createResponse.data as List<dynamic>)
             .map(((json) => SolevatoMessage.fromJson(json)))
@@ -117,8 +122,13 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
     _addInterceptor();
 
     try {
+      CancelToken cancelToken = CancelToken();
+
       final createResponse = await _dio.get(
-          "/public/api/v1/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}");
+          "/public/api/v1"
+          "/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}"
+          "/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}",
+          cancelToken: cancelToken);
       if ((createResponse.statusCode ?? 0).isBetween(199, 300)) {
         final contact = SolevatoContact.fromJson(createResponse.data);
         return SolevatoContact.fromJson(createResponse.data);
@@ -140,8 +150,11 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
   Future<List<SolevatoConversation>> getConversations() async {
     _addInterceptor();
     try {
+      CancelToken cancelToken = CancelToken();
+
       final createResponse = await _dio.get(
-          "/public/api/v1/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}/conversations");
+          "/public/api/v1/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}/conversations",
+          cancelToken: cancelToken);
       if ((createResponse.statusCode ?? 0).isBetween(199, 300)) {
         return (createResponse.data as List<dynamic>)
             .map(((json) => SolevatoConversation.fromJson(json)))
@@ -162,9 +175,12 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
   Future<SolevatoContact> updateContact(update) async {
     _addInterceptor();
     try {
+      CancelToken cancelToken = CancelToken();
+
       final updateResponse = await _dio.patch(
           "/public/api/v1/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}",
-          data: update);
+          data: update,
+          cancelToken: cancelToken);
       if ((updateResponse.statusCode ?? 0).isBetween(199, 300)) {
         return SolevatoContact.fromJson(updateResponse.data);
       } else {
@@ -184,9 +200,12 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
       String messageIdentifier, update) async {
     _addInterceptor();
     try {
+      CancelToken cancelToken = CancelToken();
+
       final updateResponse = await _dio.patch(
           "/public/api/v1/inboxes/${SolevatoClientApiInterceptor.INTERCEPTOR_INBOX_IDENTIFIER_PLACEHOLDER}/contacts/${SolevatoClientApiInterceptor.INTERCEPTOR_CONTACT_IDENTIFIER_PLACEHOLDER}/conversations/${SolevatoClientApiInterceptor.INTERCEPTOR_CONVERSATION_IDENTIFIER_PLACEHOLDER}/messages/$messageIdentifier",
-          data: update);
+          data: update,
+          cancelToken: cancelToken);
       if ((updateResponse.statusCode ?? 0).isBetween(199, 300)) {
         return SolevatoMessage.fromJson(updateResponse.data);
       } else {
@@ -238,12 +257,16 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
   Future<SolevatoConversation> createNewConversation(
       String inboxIdentifier, String contactIdentifier) async {
     try {
+      CancelToken cancelToken = CancelToken();
+
       final createResponse = await _dio.post(
-          "/public/api/v1/inboxes/$inboxIdentifier/contacts/$contactIdentifier/conversations");
+          "/public/api/v1/inboxes/$inboxIdentifier/contacts/$contactIdentifier/conversations",
+          cancelToken: cancelToken);
+
       if ((createResponse.statusCode ?? 0).isBetween(199, 300)) {
         //creating contact successful continue with request
         final newConversation =
-        SolevatoConversation.fromJson(createResponse.data);
+            SolevatoConversation.fromJson(createResponse.data);
         return newConversation;
       } else {
         throw SolevatoClientException(
@@ -261,13 +284,17 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
   Future<SolevatoContact> createNewContact(
       String inboxIdentifier, SolevatoUser? user) async {
     try {
+      CancelToken cancelToken = CancelToken();
+
       final createResponse = await _dio.post(
           "/public/api/v1/inboxes/$inboxIdentifier/contacts",
-          data: user?.toJson());
+          data: user?.toJson(),
+          cancelToken: cancelToken);
       if ((createResponse.statusCode ?? 0).isBetween(199, 300)) {
         //creating contact successful continue with request
         final contact = SolevatoContact.fromJson(createResponse.data);
-        debugPrint('contact created: $contact');
+        debugPrint(
+            'solevato-client-service: contact created: $contact - $createResponse');
         return contact;
       } else {
         throw SolevatoClientException(
