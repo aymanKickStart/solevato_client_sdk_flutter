@@ -45,7 +45,6 @@ class PersistedSolevatoMessagesDao extends SolevatoMessagesDao {
   Future<void> saveMessage(SolevatoMessage message) async {
     await _box.put(message.id, message);
     await _messageIdToClientInstanceKeyBox.put(message.id, _clientInstanceKey);
-    print("saved");
   }
 
   @override

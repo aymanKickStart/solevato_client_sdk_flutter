@@ -223,9 +223,6 @@ class _SolevatoChatState extends State<SolevatoChat> {
                 .toList();
           });
         }
-        for(var msg in _messages) {
-          print("msggg: ${msg}");
-        }
         widget.onPersistedMessagesRetrieved?.call(persistedMessages);
       },
       onMessagesRetrieved: (messages) {
