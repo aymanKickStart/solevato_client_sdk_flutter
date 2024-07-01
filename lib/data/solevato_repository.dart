@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 
+import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_message.dart';
 import 'package:solevato_client_sdk_flutter/solevato_callbacks.dart';
 import 'package:solevato_client_sdk_flutter/solevato_client.dart';
 import 'package:solevato_client_sdk_flutter/data/local/entity/solevato_user.dart';
@@ -189,11 +190,16 @@ class SolevatoRepositoryImpl extends SolevatoRepository {
           var echoId = solevatoEvent.message!.data!.echoId!;
           callbacks.onMessageDelivered?.call(message, echoId);
         } else {
-          callbacks.onMessageReceived?.call(message);
+          Map<String, dynamic> dataDecoded = jsonDecode(event);
+
+          SolevatoMessage newMessage =
+              SolevatoMessage.fromJson(dataDecoded['message']['data']);
+
+          callbacks.onMessageReceived?.call(newMessage);
         }
       } else if (solevatoEvent.message?.event ==
           SolevatoEventMessageType.message_updated) {
-        debugPrint("here comes the updated message: $event");
+        debugPrint("Here comes the updated message: $event");
 
         final message = solevatoEvent.message!.data!.getMessage();
         localStorage.messagesDao.saveMessage(message);

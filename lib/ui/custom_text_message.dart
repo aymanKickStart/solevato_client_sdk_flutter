@@ -4,6 +4,7 @@ import 'package:flutter_chat_ui/src/util.dart';
 import 'package:solevato_client_sdk_flutter/ui/solevato_chat_theme.dart';
 import 'package:flutter_link_previewer/src/utils.dart';
 import 'package:flutter_link_previewer/src/widgets/link_preview.dart';
+import 'package:solevato_client_sdk_flutter/util/photo_view.dart';
 
 class CustomTextMessage extends StatelessWidget {
   final bool? isMe;
@@ -11,12 +12,14 @@ class CustomTextMessage extends StatelessWidget {
   final User? author;
   final String? message;
   final SolevatoChatTheme? theme;
+  final List<dynamic>? attachment;
 
   const CustomTextMessage({
     this.isMe,
     this.showUsersName,
     this.author,
     this.message,
+    this.attachment,
     this.theme,
   });
 
@@ -94,6 +97,65 @@ class CustomTextMessage extends StatelessWidget {
                 ? theme?.sentMessageBodyTextStyle
                 : theme?.receivedMessageBodyTextStyle,
           ),
+          if ((attachment ?? []).isNotEmpty) ...[
+            attachment!.length > 1
+                ? GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 4.0,
+                      mainAxisSpacing: 4.0,
+                    ),
+                    itemCount: attachment!.length,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return attachment![index]['file_type'] != null &&
+                              attachment![index]['file_type'] == 'image' &&
+                              attachment![index]['data_url'] != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: InkWell(
+                                onTap: () {
+                                  PhotoView.show(
+                                    context: context,
+                                    index: index,
+                                    images: attachment!,
+                                  );
+                                },
+                                child: Image.network(
+                                  attachment![index]['data_url'],
+                                  width: 150,
+                                  height: 150,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            )
+                          : SizedBox.shrink();
+                    },
+                  )
+                : attachment![0]['file_type'] != null &&
+                        attachment![0]['file_type'] == 'image' &&
+                        attachment![0]['data_url'] != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: InkWell(
+                          onTap: () {
+                            PhotoView.show(
+                              context: context,
+                              index: 0,
+                              images: attachment!,
+                            );
+                          },
+                          child: Image.network(
+                            attachment![0]['data_url'],
+                            width: double.infinity,
+                            height: 150,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      )
+                    : SizedBox.shrink()
+          ],
         ],
       ),
     );

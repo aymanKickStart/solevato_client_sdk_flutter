@@ -303,7 +303,7 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
             SolevatoClientExceptionType.CREATE_CONTACT_FAILED);
       }
     } on DioError catch (e) {
-      debugPrint('Error creating contact: ${e.message}');
+      debugPrint('Error creating contact: ${e.message} - ${e.requestOptions.uri}');
       throw SolevatoClientException(
           e.message, SolevatoClientExceptionType.CREATE_CONTACT_FAILED);
     }

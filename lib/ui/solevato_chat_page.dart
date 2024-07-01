@@ -221,6 +221,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
             _messages = persistedMessages
                 .map((message) => _SolevatoMessageToTextMessage(message))
                 .toList();
+            _removeEmptyMessage();
           });
         }
         widget.onPersistedMessagesRetrieved?.call(persistedMessages);
@@ -240,18 +241,17 @@ class _SolevatoChatState extends State<SolevatoChat> {
             return (b.createdAt ?? now).compareTo(a.createdAt ?? now);
           });
           _messages = mergedMessages;
+          _removeEmptyMessage();
         });
         widget.onMessagesRetrieved?.call(messages);
       },
       onMessageReceived: (SolevatoMessage) {
-
         _addMessage(
           _SolevatoMessageToTextMessage(SolevatoMessage),
         );
         widget.onMessageReceived?.call(SolevatoMessage);
       },
       onMessageDelivered: (SolevatoMessage, echoId) {
-
         _handleMessageSent(
             _SolevatoMessageToTextMessage(
               SolevatoMessage,
@@ -273,6 +273,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
           author: _user,
           metadata: {
             "content": SolevatoMessage.content ?? '',
+            "attachments": SolevatoMessage.attachments ?? [],
           },
           status: types.Status.delivered,
         );
@@ -280,6 +281,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
         widget.onMessageSent?.call(SolevatoMessage);
       },
       onConversationResolved: (SolevatoConversation conversation) {
+        print('Conversation resolved $conversation');
         final resolvedMessage = types.CustomMessage(
           id: idGen.v4(),
           metadata: {
@@ -345,6 +347,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
       author: message.isMine ? _user : supportAgent(message, avatarUrl),
       metadata: {
         'content': message.content ?? "",
+        "attachments": message.attachments ?? [],
       },
       status: types.Status.seen,
       createdAt: DateTime.parse(message.createdAt).millisecondsSinceEpoch,
@@ -369,6 +372,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
   void _addMessage(types.Message message) {
     setState(() {
       _messages.insert(0, message);
+      _removeEmptyMessage();
     });
   }
 
@@ -376,6 +380,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
     final index = _messages.indexWhere((element) => element.id == echoId);
     setState(() {
       _messages[index] = _messages[index].copyWith(status: types.Status.error);
+      _removeEmptyMessage();
     });
   }
 
@@ -384,6 +389,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
     final index = _messages.indexWhere((element) => element.id == message.id);
     setState(() {
       _messages[index] = message.copyWith(status: types.Status.sending);
+      _removeEmptyMessage();
     });
   }
 
@@ -395,13 +401,16 @@ class _SolevatoChatState extends State<SolevatoChat> {
   }
 
   void _handlePreviewDataFetched(
-      types.TextMessage message, types.PreviewData previewData) {
+    types.TextMessage message,
+    types.PreviewData previewData,
+  ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = _messages[index].copyWith(previewData: previewData);
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       setState(() {
         _messages[index] = updatedMessage;
+        _removeEmptyMessage();
       });
     });
   }
@@ -421,6 +430,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
       WidgetsBinding.instance?.addPostFrameCallback((_) {
         setState(() {
           _messages[index] = message;
+          _removeEmptyMessage();
         });
       });
     });
@@ -436,6 +446,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
       WidgetsBinding.instance?.addPostFrameCallback((_) {
         setState(() {
           _messages[index] = message;
+          _removeEmptyMessage();
         });
       });
     });
@@ -448,6 +459,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
       id: const Uuid().v4(),
       metadata: {
         'content': message.text,
+        "attachments": message.metadata?['attachments'] ?? [],
       },
       status: types.Status.sending,
     );
@@ -461,9 +473,25 @@ class _SolevatoChatState extends State<SolevatoChat> {
     widget.onSendPressed?.call(message);
   }
 
+  void _removeEmptyMessage() {
+    debugPrint('Remove Empty Message');
+    _messages.removeWhere(
+      (element) {
+        bool condition = (element.metadata?['content'] ?? '').trim().isEmpty &&
+            (element.metadata?['attachments'] ?? []).isEmpty;
+
+        if (condition) {
+          debugPrint('Remove Empty Message: $element');
+        }
+        return condition;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final horizontalPadding = widget.isPresentedInDialog ? 8.0 : 16.0;
+
     return Scaffold(
       appBar: widget.appBar,
       backgroundColor: widget.theme.backgroundColor,
@@ -478,11 +506,13 @@ class _SolevatoChatState extends State<SolevatoChat> {
               child: Chat(
                 messages: _messages,
                 buildCustomMessage: (message) {
+                  _removeEmptyMessage();
                   return CustomTextMessage(
                     isMe: widget.user?.identifier == message.author.id,
                     showUsersName: widget.showUserNames,
                     author: message.author,
                     message: message.metadata?['content'] ?? '',
+                    attachment: message.metadata?['attachments'] ?? [],
                     theme: widget.theme,
                   );
                 },
