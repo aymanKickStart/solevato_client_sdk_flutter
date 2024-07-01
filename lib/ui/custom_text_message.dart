@@ -98,6 +98,7 @@ class CustomTextMessage extends StatelessWidget {
                 : theme?.receivedMessageBodyTextStyle,
           ),
           if ((attachment ?? []).isNotEmpty) ...[
+            SizedBox(height: 5),
             attachment!.length > 1
                 ? GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
