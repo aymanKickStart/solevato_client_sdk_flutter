@@ -29,6 +29,11 @@
 .pub-cache/
 .pub/
 build/
+example/.fvm/flutter_sdk
+example/.fvm/fvm_config.json
+example/.fvm
+example/build
+
 
 # Android related
 **/android/**/gradle-wrapper.jar

@@ -1,5 +1,3 @@
-[comment]: <> ([![Pub Version]&#40;https://img.shields.io/pub/v/solevato_client_sdk_flutter?color=blueviolet&#41;]&#40;https://pub.dev/packages/solevato_client_sdk_flutter&#41; ![build]&#40;https://github.com/EphraimNetWorks/test_cw_flutter_client/actions/workflows/develop-actions.yml/badge.svg&#41; [![likes]&#40;https://badges.bar/solevato_client_sdk_flutter/likes&#41;]&#40;https://pub.dev/packages/solevato_client_sdk_flutter/score&#41; [![popularity]&#40;https://badges.bar/solevato_client_sdk_flutter/popularity&#41;]&#40;https://pub.dev/packages/solevato_client_sdk_flutter/score&#41; [![pub points]&#40;https://badges.bar/solevato_client_sdk_flutter/pub%20points&#41;]&#40;https://pub.dev/packages/solevato_client_sdk_flutter/score&#41;)
-
 # Integrate Solevato with Flutter app
 
 Integrate Solevato flutter client into your flutter app and talk to your visitors in real time. [Solevato](https://bitbucket.org/mark_rady/solevato-flutter-sdk) helps you to chat with your visitors and provide exceptional support in real time. To use Solevato in your flutter app, follow the steps described below.
@@ -13,21 +11,6 @@ Integrate Solevato flutter client into your flutter app and talk to your visitor
 Run the command below in your terminal
 
 `flutter pub add solevato_client_sdk_flutter`
-
-or
-
-Add 
-```
-dependencies:
-    flutter:
-        sdk: flutter
-    solevato_client_sdk_flutter:
-        git:
-            url: https://mark_rady@bitbucket.org/mark_rady/solevato-flutter-sdk.git
-            ref: master
-    ...
-```
-to your project's [pubspec.yml](https://flutter.dev/docs/development/tools/pubspec) file. You can check [here](https://pub.dev/packages/solevato_client_sdk_flutter) for the latest version.
 
 
 or
