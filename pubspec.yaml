@@ -1,6 +1,6 @@
 name: solevato_client_sdk_flutter
 description: A flutter client sdk for solevato. Integrate Solevato flutter client into your flutter app and talk to your visitors/users in real time.
-version: 0.0.9
+version: 0.0.10
 homepage: https://bitbucket.com/markrady/solevato-flutter-sdk
 
 environment:
