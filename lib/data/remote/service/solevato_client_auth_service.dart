@@ -49,7 +49,7 @@ class SolevatoClientAuthServiceImpl extends SolevatoClientAuthService {
     } on DioError catch (e) {
       debugPrint('Error creating contact: ${e.message} - ${e.requestOptions.uri}');
       throw SolevatoClientException(
-          e.message, SolevatoClientExceptionType.CREATE_CONTACT_FAILED);
+          e.message ?? "", SolevatoClientExceptionType.CREATE_CONTACT_FAILED);
     }
   }
 
@@ -72,7 +72,7 @@ class SolevatoClientAuthServiceImpl extends SolevatoClientAuthService {
       }
     } on DioError catch (e) {
       throw SolevatoClientException(
-          e.message, SolevatoClientExceptionType.CREATE_CONVERSATION_FAILED);
+          e.message ?? "", SolevatoClientExceptionType.CREATE_CONVERSATION_FAILED);
     }
   }
 }

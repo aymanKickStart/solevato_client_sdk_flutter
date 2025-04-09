@@ -29,6 +29,8 @@ class SolevatoL10n extends ChatL10n {
   /// Message when agent resolves conversation
   final String conversationResolvedMessage;
 
+  final String unreadMessagesLabel;
+
   /// Creates a new solevato l10n
   const SolevatoL10n(
       {this.attachmentButtonAccessibilityLabel = "",
@@ -40,8 +42,14 @@ class SolevatoL10n extends ChatL10n {
       this.inputPlaceholder = "Type your message",
       this.sendButtonAccessibilityLabel = "Send Message",
       this.conversationResolvedMessage =
-          "Your ticket has been marked as resolved"})
+          "Your ticket has been marked as resolved",
+        this.unreadMessagesLabel = "Unread message"
+      })
       : super(
+    and: "and",
+            isTyping: typingText,
+            others: "",
+            unreadMessagesLabel: unreadMessagesLabel,
             attachmentButtonAccessibilityLabel:
                 attachmentButtonAccessibilityLabel,
             emptyChatPlaceholder: emptyChatPlaceholder,

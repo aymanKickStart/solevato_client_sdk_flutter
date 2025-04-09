@@ -87,7 +87,7 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
       }
     } on DioError catch (e) {
       throw SolevatoClientException(
-          e.message, SolevatoClientExceptionType.SEND_MESSAGE_FAILED);
+           e.message ?? "", SolevatoClientExceptionType.SEND_MESSAGE_FAILED);
     }
   }
 
@@ -113,7 +113,7 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
     } on DioError catch (e) {
       debugPrint('Error getting messages: ${e.error}');
       throw SolevatoClientException(
-          e.message, SolevatoClientExceptionType.GET_MESSAGES_FAILED);
+           e.message ?? "", SolevatoClientExceptionType.GET_MESSAGES_FAILED);
     }
   }
 
@@ -142,7 +142,7 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
     } on DioError catch (e) {
       debugPrint('Error getting contact: ${e.error}');
       throw SolevatoClientException(
-          e.message, SolevatoClientExceptionType.GET_CONTACT_FAILED);
+           e.message ?? "", SolevatoClientExceptionType.GET_CONTACT_FAILED);
     }
   }
 
@@ -167,7 +167,7 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
       }
     } on DioError catch (e) {
       throw SolevatoClientException(
-          e.message, SolevatoClientExceptionType.GET_CONVERSATION_FAILED);
+           e.message ?? "", SolevatoClientExceptionType.GET_CONVERSATION_FAILED);
     }
   }
 
@@ -191,7 +191,7 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
       }
     } on DioError catch (e) {
       throw SolevatoClientException(
-          e.message, SolevatoClientExceptionType.UPDATE_CONTACT_FAILED);
+           e.message ?? "", SolevatoClientExceptionType.UPDATE_CONTACT_FAILED);
     }
   }
 
@@ -216,7 +216,7 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
       }
     } on DioError catch (e) {
       throw SolevatoClientException(
-          e.message, SolevatoClientExceptionType.UPDATE_MESSAGE_FAILED);
+           e.message ?? "", SolevatoClientExceptionType.UPDATE_MESSAGE_FAILED);
     }
   }
 
@@ -276,7 +276,7 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
       }
     } on DioError catch (e) {
       throw SolevatoClientException(
-          e.message, SolevatoClientExceptionType.CREATE_CONVERSATION_FAILED);
+           e.message ?? "", SolevatoClientExceptionType.CREATE_CONVERSATION_FAILED);
     }
   }
 
@@ -305,7 +305,7 @@ class SolevatoClientServiceImpl extends SolevatoClientService {
     } on DioError catch (e) {
       debugPrint('Error creating contact: ${e.message} - ${e.requestOptions.uri}');
       throw SolevatoClientException(
-          e.message, SolevatoClientExceptionType.CREATE_CONTACT_FAILED);
+          e.message ?? "", SolevatoClientExceptionType.CREATE_CONTACT_FAILED);
     }
   }
 }

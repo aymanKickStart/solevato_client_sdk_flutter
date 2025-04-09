@@ -32,7 +32,7 @@ class CustomTextMessage extends StatelessWidget {
             ? getUserName(author!)
             : 'Bot'
         : 'Bot';
-    final urlRegexp = RegExp(REGEX_LINK);
+    final urlRegexp = RegExp(regexLink);
     final matches = urlRegexp.allMatches((message ?? '').toLowerCase());
     List<RegExpMatch> matchesList = matches.toList();
     if (matches.isNotEmpty) {

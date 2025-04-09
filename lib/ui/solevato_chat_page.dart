@@ -21,8 +21,6 @@ import '../data/local/local_storage.dart';
 import '../util/package_info_handler.dart';
 import 'package:synchronized/synchronized.dart';
 
-import 'package:flutter_chat_ui/src/widgets/inherited_chat_theme.dart';
-
 import 'package:flutter_chat_ui/src/util.dart';
 
 ///solevato chat widget
@@ -53,7 +51,7 @@ class SolevatoChat extends StatefulWidget {
   final double? onEndReachedThreshold;
 
   /// See [Message.onMessageLongPress]
-  final void Function(types.Message)? onMessageLongPress;
+  final void Function(BuildContext , types.Message)? onMessageLongPress;
 
   /// See [Message.onMessageTap]
   final void Function(types.Message)? onMessageTap;
@@ -140,7 +138,7 @@ class SolevatoChat extends StatefulWidget {
       this.onTextChanged,
       this.showUserAvatars = true,
       this.showUserNames = true,
-      this.theme = const SolevatoChatTheme(),
+      this.theme = const  SolevatoChatTheme(),
       this.l10n = const SolevatoL10n(),
       this.timeFormat,
       this.dateFormat,
@@ -393,7 +391,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
     });
   }
 
-  void _handleMessageTap(types.Message message) async {
+  void _handleMessageTap(BuildContext context, types.Message message) async {
     if (message.status == types.Status.error && message is types.TextMessage) {
       _handleResendMessage(message);
     }
@@ -405,11 +403,11 @@ class _SolevatoChatState extends State<SolevatoChat> {
     types.PreviewData previewData,
   ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
-    final updatedMessage = _messages[index].copyWith(previewData: previewData);
+    // final updatedMessage = _messages[index].copyWith(previewData: previewData);
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
-        _messages[index] = updatedMessage;
+        // _messages[index] = updatedMessage;
         _removeEmptyMessage();
       });
     });
@@ -505,7 +503,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
               ),
               child: Chat(
                 messages: _messages,
-                buildCustomMessage: (message) {
+                customMessageBuilder: (message , {required messageWidth}) {
                   _removeEmptyMessage();
                   return CustomTextMessage(
                     isMe: widget.user?.identifier == message.author.id,
@@ -523,7 +521,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
                 onEndReached: widget.onEndReached,
                 onEndReachedThreshold: widget.onEndReachedThreshold,
                 onMessageLongPress: widget.onMessageLongPress,
-                onTextChanged: widget.onTextChanged,
+                // onTextChanged: widget.onTextChanged,
                 showUserAvatars: widget.showUserAvatars,
                 showUserNames: widget.showUserNames,
                 timeFormat: widget.timeFormat ?? DateFormat.Hm(),
