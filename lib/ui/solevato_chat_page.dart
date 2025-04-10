@@ -521,7 +521,7 @@ class _SolevatoChatState extends State<SolevatoChat> {
                 onEndReached: widget.onEndReached,
                 onEndReachedThreshold: widget.onEndReachedThreshold,
                 onMessageLongPress: widget.onMessageLongPress,
-                // onTextChanged: widget.onTextChanged,
+                inputOptions: InputOptions(onTextChanged: widget.onTextChanged),
                 showUserAvatars: widget.showUserAvatars,
                 showUserNames: widget.showUserNames,
                 timeFormat: widget.timeFormat ?? DateFormat.Hm(),
