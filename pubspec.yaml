@@ -24,7 +24,7 @@ dependencies:
   flutter_chat_types: ^3.6.2
   stream_channel: ^2.1.0
   async: ^2.5.0
-  package_info_plus: ^8.3.0
+  package_info_plus: ^9.0.0
   url_launcher: ^6.1.8
   pinch_zoom: ^2.0.1
   flutter_link_previewer: ^3.2.2
